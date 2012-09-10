@@ -1,0 +1,32 @@
+<html>
+	<head>
+		<title>Test websockets</title>
+		<script type="text/javascript">
+			document.addEventListener('DOMContentLoaded', function(){
+				var socket = new WebSocket("ws://localhost:8001");
+
+				// When the connection is open, send some data to the server
+				socket.onopen = function () {
+				  socket.send('Connected!'); // Send the message 'Ping' to the server
+				};
+
+				// Log errors
+				socket.onerror = function (error) {
+				  console.log('WebSocket Error ' + error);
+				};
+
+				// Log messages from the server
+				socket.onmessage = function (e) {
+				  document.getElementById('receive').innerHTML = e.data ;
+				};
+
+				socket.onclose = function(){
+					document.getElementById('receive').innerHTML = "Connection Closed..." ;
+				}
+			}); 
+		</script>
+	</head>
+	<body>
+		<div id="receive"></div>
+	</body>
+</html>

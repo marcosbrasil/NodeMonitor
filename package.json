@@ -1,0 +1,17 @@
+{ 
+  "name" : "NodeMonitor",
+  "author" : "Marcos Brasil <markus.prologic@gmail.com>",
+  "version" : "0.0.1",
+  "description": "Websocket streaming of Cpu and Memory. Totaly realtime and pure websocket client powered!",
+  "dependencies" : {
+    "connect" : "2.4.5",
+    "ws" : "0.4.21"
+  },
+  "engines": {
+    "node": ">=0.6.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  }
+}
