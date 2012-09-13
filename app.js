@@ -2,7 +2,7 @@ var os = require('os');
 var connect = require('connect');
 var WebSocketServer = require('ws').Server;
 var socket = new WebSocketServer({port: 8001});
-var arrClients = new Array();
+var arrClients = new Array(), prev_total = new Array(), prev_use = new Array();
 
 var server = connect.createServer(
   connect.favicon(),
@@ -19,15 +19,21 @@ socket.on('close', function() {
 	console.log("Client Closed Connection...")
 });
 
-//create arrys for each cpu
-var prev_total = new Array(), prev_use = new Array();
-for(var i = 0, len = os.cpus().length; i < len; i++) {
-	prev_total[i] = 0;
-	prev_use[i] = 0;
+//Create and initialize arrys for each cpu
+function initProcData(){
+	for(var i = 0, len = os.cpus().length; i < len; i++) {
+		prev_total[i] = 0;
+		prev_use[i] = 0;
+	}	
+}
+initProcData();
+
+function memStat(){
+	var percent = (((os.totalmem() - os.freemem())*100) / os.totalmem());
+	return 'Total used memory: ' + percent.toFixed(2) + '%';
 }
 
-
-function sysLog(){
+function procStat(){
 	var cpus = os.cpus();
 	var log = '';
 
@@ -52,16 +58,21 @@ function sysLog(){
 		prev_use[i] = total_use;
 	}
 
+	return log;
+}
+
+function main(){
+
 	if(arrClients.length>0){
 		for(client in arrClients){
-			arrClients[client].send(log);
+			arrClients[client].send(procStat() +'<br>'+ memStat());
 		}
 	}else{
 		console.log('No Client, waiting...');
 	}
 }
 
-var interval = setInterval(sysLog, 1000);
+var interval = setInterval(main, 1000);
 
 setTimeout(function(){
 	clearInterval(interval);
