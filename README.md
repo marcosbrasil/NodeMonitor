@@ -1,8 +1,8 @@
 # NodeMonitor
 
-Websocket streaming of Cpu and Memory. Totaly realtime and pure websocket client powered!
+Websocket streaming of Cpu and Memory. Totally realtime and pure websocket client powered!
 
-## Instalation
+## Installation
 
 * Install [NodeJS](http://nodejs.org/download/)
 * Download the project
@@ -11,9 +11,9 @@ Websocket streaming of Cpu and Memory. Totaly realtime and pure websocket client
 
 * **By default, server listens on port 8000**
 
-## Uses
-* Completly javascript code
-* **Under construction, I like a piece of help! =)**
+## Usage
+* Completely javascript code
+* **Under construction, I'd like a piece of help! =)**
 
 ## License
 Under MIT License for the moment...
