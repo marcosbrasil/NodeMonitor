@@ -11,8 +11,12 @@ Websocket streaming of Cpu and Memory. Totally realtime and pure websocket clien
 
 * **By default, server listens on port 8000**
 
-## Usage
-* Completely javascript code
+## Features
+* Only javascript code
+* No filesystem stream
+* Persistent and real time websocket connection
+* No connection fallback
+
 * **Under construction, I'd like a piece of help! =)**
 
 ## License
