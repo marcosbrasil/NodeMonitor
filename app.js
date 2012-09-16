@@ -2,7 +2,10 @@ var os = require('os');
 var connect = require('connect');
 var WebSocketServer = require('ws').Server;
 var socket = new WebSocketServer({port: 8001});
-var arrClients = new Array(), prev_total = new Array(), prev_use = new Array();
+var arrClients = new Array(), 
+	prev_total = new Array(), 
+	prev_use = new Array(),
+	jsonObject = new Object();
 
 var server = connect.createServer(
   connect.favicon(),
@@ -12,7 +15,7 @@ var server = connect.createServer(
 
 socket.on('connection', function(ws) {
 	arrClients.push(ws);
-	ws.send('CONNECTED!');
+	console.log('CONNECTED')
 });
 
 socket.on('close', function() {
@@ -24,13 +27,16 @@ function initProcData(){
 	for(var i = 0, len = os.cpus().length; i < len; i++) {
 		prev_total[i] = 0;
 		prev_use[i] = 0;
-	}	
+	}
+	return null;
 }
 initProcData();
 
 function memStat(){
 	var percent = (((os.totalmem() - os.freemem())*100) / os.totalmem());
-	return 'Total used memory: ' + percent.toFixed(2) + '%';
+	percent = percent.toFixed(2);
+	jsonObject.data.push(['Memory', Math.round(percent)]);
+	return 'Total used memory: ' + percent + '%';
 }
 
 function procStat(){
@@ -50,6 +56,7 @@ function procStat(){
 		var delta_use = total_use - prev_use[i];
 		var percent = 100 * (delta_use / delta_total);
 		percent = percent.toFixed(2);
+		jsonObject.data.push(['CPU '+i, Math.round(percent)]);
 
 		log += "CPU "+i+": "+percent+"%<br />";
 		log += 'user: '+cpu.times.user+'|nice: '+cpu.times.nice+'|sys: '+cpu.times.sys+'|idle: '+cpu.times.idle+'|irq: '+cpu.times.irq+'<br />';
@@ -57,15 +64,24 @@ function procStat(){
 		prev_total[i] = total;
 		prev_use[i] = total_use;
 	}
-
+	
 	return log;
+}
+
+function parseToSend(){
+	jsonObject.data = new Array(['Label', 'Value']);
+	var htmlProc = procStat();
+	var htmlMemo = memStat();
+	jsonObject.html = htmlProc + htmlMemo;
+
+	return JSON.stringify(jsonObject); 
 }
 
 function main(){
 
 	if(arrClients.length>0){
 		for(client in arrClients){
-			arrClients[client].send(procStat() +'<br>'+ memStat());
+			arrClients[client].send(parseToSend());
 		}
 	}else{
 		console.log('No Client, waiting...');

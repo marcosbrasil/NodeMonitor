@@ -1,32 +1,56 @@
 <html>
 	<head>
-		<title>Test websockets</title>
+		<title>Test websockets</title> 
+		<script type='text/javascript' src='https://www.google.com/jsapi'></script>
+		<script type='text/javascript' src='googleChart.js?ver=nocache'></script>
 		<script type="text/javascript">
-			document.addEventListener('DOMContentLoaded', function(){
+			google.load('visualization', '1', {packages:['gauge']});
+		</script>
+	</head>
+	<body>
+		<div id="chart_div"></div>
+		<div id="receive"></div>
+
+		<script type="text/javascript">
+			//document.addEventListener('DOMContentLoaded', function(){
+				google.setOnLoadCallback(googleChart);
+				
+				var chartData = [
+					['Label', 'Value'],
+					['Memory', 80],
+					['CPU 0', 55]
+				];
+
+				var options = {
+					width: 600, height: 180,
+					redFrom: 90, redTo: 100,
+					yellowFrom:75, yellowTo: 90,
+					greenFrom:50, greenTo:75,
+					minorTicks: 5
+				};
+
+				function googleChart() {
+					var data = google.visualization.arrayToDataTable(chartData);
+					var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
+					chart.draw(data, options);
+				}
+
 				var socket = new WebSocket("ws://localhost:8001");
-
-				// When the connection is open, send some data to the server
-				socket.onopen = function () {
-				  socket.send('Connected!'); // Send the message 'Ping' to the server
-				};
-
-				// Log errors
-				socket.onerror = function (error) {
-				  console.log('WebSocket Error ' + error);
-				};
-
+					
 				// Log messages from the server
 				socket.onmessage = function (e) {
-				  document.getElementById('receive').innerHTML = e.data ;
+					var jsonObject = JSON.parse(e.data);
+					
+					chartData = jsonObject.data; 
+					googleChart();
+					document.getElementById('receive').innerHTML = jsonObject.html;
+					console.log(chartData);
 				};
 
 				socket.onclose = function(){
 					document.getElementById('receive').innerHTML = "Connection Closed..." ;
 				}
-			}); 
+			//}); 
 		</script>
-	</head>
-	<body>
-		<div id="receive"></div>
 	</body>
 </html>
