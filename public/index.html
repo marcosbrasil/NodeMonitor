@@ -2,7 +2,6 @@
 	<head>
 		<title>Test websockets</title> 
 		<script type='text/javascript' src='https://www.google.com/jsapi'></script>
-		<script type='text/javascript' src='googleChart.js?ver=nocache'></script>
 		<script type="text/javascript">
 			google.load('visualization', '1', {packages:['gauge']});
 		</script>
@@ -12,45 +11,43 @@
 		<div id="receive"></div>
 
 		<script type="text/javascript">
-			//document.addEventListener('DOMContentLoaded', function(){
-				google.setOnLoadCallback(googleChart);
+			google.setOnLoadCallback(googleChart);
+			
+			var chartData = [
+				['Label', 'Value'],
+				['Memory', 80],
+				['CPU 0', 55]
+			];
+
+			var options = {
+				width: 600, height: 180,
+				redFrom: 90, redTo: 100,
+				yellowFrom:75, yellowTo: 90,
+				greenFrom:50, greenTo:75,
+				minorTicks: 5
+			};
+
+			function googleChart() {
+				var data = google.visualization.arrayToDataTable(chartData);
+				var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
+				chart.draw(data, options);
+			}
+
+			var socket = new WebSocket("ws://localhost:8001");
 				
-				var chartData = [
-					['Label', 'Value'],
-					['Memory', 80],
-					['CPU 0', 55]
-				];
+			// Log messages from the server
+			socket.onmessage = function (e) {
+				var jsonObject = JSON.parse(e.data);
+				
+				chartData = jsonObject.data; 
+				googleChart();
+				document.getElementById('receive').innerHTML = jsonObject.html;
+				console.log(chartData);
+			};
 
-				var options = {
-					width: 600, height: 180,
-					redFrom: 90, redTo: 100,
-					yellowFrom:75, yellowTo: 90,
-					greenFrom:50, greenTo:75,
-					minorTicks: 5
-				};
-
-				function googleChart() {
-					var data = google.visualization.arrayToDataTable(chartData);
-					var chart = new google.visualization.Gauge(document.getElementById('chart_div'));
-					chart.draw(data, options);
-				}
-
-				var socket = new WebSocket("ws://localhost:8001");
-					
-				// Log messages from the server
-				socket.onmessage = function (e) {
-					var jsonObject = JSON.parse(e.data);
-					
-					chartData = jsonObject.data; 
-					googleChart();
-					document.getElementById('receive').innerHTML = jsonObject.html;
-					console.log(chartData);
-				};
-
-				socket.onclose = function(){
-					document.getElementById('receive').innerHTML = "Connection Closed..." ;
-				}
-			//}); 
+			socket.onclose = function(){
+				document.getElementById('receive').innerHTML = "Connection Closed..." ;
+			}
 		</script>
 	</body>
 </html>
